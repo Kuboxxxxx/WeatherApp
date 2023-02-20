@@ -1,0 +1,44 @@
+:root{
+--electric-indigo: #6e07f3ff;
+--periwinkle: #bbbdf6ff;
+--tropical-indigo: #9893daff;
+--dim-gray: #625f63ff;
+--black: #080705ff;
+}
+
+body{
+    background-color: var(--tropical-indigo);
+    color: var(--electric-indigo);
+}
+
+.search-container {
+    flex: 1;
+}
+
+.app-container {
+    flex: 4;
+}
+
+.jumbotron {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background-color: var(--periwinkle);
+    border-radius: .3rem;
+    text-align: center;
+}
+
+.forecast-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+@media screen and (max-width: 576px) {
+    .main-container {
+        flex-direction: column;
+    }
+
+    .forecast-container {
+        flex-direction: column;
+    }
+}
