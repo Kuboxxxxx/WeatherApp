@@ -2,9 +2,11 @@ const CURRENT_WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather`
 const FORECAST_WEATHER_URL = "https://api.openweathermap.org/data/2.5/forecast"
 const RANDOM_STRING_DONT_WORRY = "ec3ea7f59664744edd6783adde90bac7"
 const ICON_URL = "http://openweathermap.org/img/w/"
+const GEOIP_LOOKUP = "http://ip-api.com/json/"
 
 const searchForm = document.getElementById("search-form")
 const searchError = document.getElementById("search-error")
+const lastSearch = document.getElementById("lastSearchContainer")
 
 const searchForWeather = (event) => {
     event.preventDefault()
@@ -14,11 +16,9 @@ const searchForWeather = (event) => {
     const cityName = searchInput.value
 
     if(!cityName){
-        console.log("error")
+        errorHandler("noCity")
     }
     else{
-        addCityToStorage(cityName)
-        renderRecentSearch()
         renderWeather(cityName)
     }
 }
@@ -35,6 +35,9 @@ const toTitleCase = (inputString) => {
 const errorHandler = (error) => {
     if(error == 404){
         searchError.innerHTML = "Enter a correct city!"
+    }
+    else if(error == "noCity"){
+        searchError.innerHTML = "Please enter a city!"
     }
     else{
         searchError.innerHTML = "Something went wrong, try again later"
@@ -73,6 +76,7 @@ const renderWeather = async (cityName) => {
 
     const currentWeatherContainer = document.getElementById("currentWeather")
 
+    // renderWeatherFavicon(currentWeather.weather[0].icon)
     currentWeatherContainer.innerHTML = ""
     currentWeatherContainer.innerHTML += `<div class="current-card card p-3 m-1">
     <div class="d-flex justify-content-between">
@@ -145,6 +149,8 @@ const getLocationInfo = async (cityName) => {
         errorHandler()
     }
     else{
+        addCityToStorage(cityName)
+        renderRecentSearch()
         const data = await respone.json()
         return data
     }
@@ -193,7 +199,18 @@ const addCityToStorage = (cityName) => {
     const savedCities = JSON.parse(localStorage.getItem("cities")) || []
 
     if(!savedCities.includes(cityName.toLowerCase())){
-        savedCities.push(cityName.toLowerCase())
+        if(savedCities.length <= 6){
+            savedCities.unshift(cityName.toLowerCase())
+        }
+        else{
+            savedCities.pop()
+            savedCities.unshift(cityName.toLowerCase())
+        }
+    }
+    else{
+        let i = savedCities.indexOf(cityName.toLowerCase())
+        savedCities.splice(i,1)
+        savedCities.unshift(cityName.toLowerCase())
     }
 
     localStorage.setItem("cities", JSON.stringify(savedCities))
@@ -201,16 +218,11 @@ const addCityToStorage = (cityName) => {
 
 const renderRecentSearch = () => {
     let cities = JSON.parse(localStorage.getItem("cities"))
-    const lastSearch = document.getElementById("lastSearchContainer")
     lastSearch.innerHTML = ""
 
-    let times = 4
-    for (let i = 0;i<times; i++){
-        if(cities[i] == undefined){
-            break
-        }
-        lastSearch.innerHTML += `<a class="list-group-item list-group-item-action" id="lastSearch${i+1}">${toTitleCase(cities[i])}</a>`
-    }
+    cities.forEach((city) => {
+        lastSearch.innerHTML += `<a class="list-group-item list-group-item-action">${toTitleCase(city)}</a>`
+    })
 }
 
 const renderWeatherOnLoad = () => {
@@ -223,20 +235,16 @@ const renderWeatherOnLoad = () => {
     }
 }
 
-// const renderWeatherFromRecent = (e) => {
-//     console.log("siema")
+// const renderWeatherFavicon = (icon) => {
+//     const favicon = document.getElementById("favicon")
+//     favicon.setAttribute("href", `./assets/IMG/${icon}.png`)
 // }
+
+lastSearch.addEventListener("click", event => {
+    renderWeather(event.target.textContent)
+})
 
 window.addEventListener("load", renderRecentSearch)
 window.addEventListener("load", renderWeatherOnLoad)
 searchForm.addEventListener("submit", searchForWeather)
 
-// const firstRecentSearch = document.getElementById("lastSearch1")
-// const secondRecentSearch = document.getElementById("lastSearch2")
-// const thirdRecentSearch = document.getElementById("lastSearch3")
-// const fourthRecentSearch = document.getElementById("lastSearch4")
-
-// firstRecentSearch.addEventListener("click", renderWeatherFromRecent)
-// secondRecentSearch.addEventListener("click", renderWeatherFromRecent)
-// thirdRecentSearch.addEventListener("click", renderWeatherFromRecent)
-// fourthRecentSearch.addEventListener("click", renderWeatherFromRecent)
