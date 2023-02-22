@@ -47,7 +47,7 @@ const errorHandler = (error) => {
 const timeConverter = (UNIX_timestamp) => {
     const a = new Date(UNIX_timestamp * 1000);
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-    const days = [,'Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
     const year = a.getFullYear()
     const month = months[a.getMonth()]
     const day = days[a.getDay()]
@@ -131,7 +131,7 @@ const renderWeather = async (cityName) => {
                     <li class="list-group-item">Wind Speed: ${forecast.list[i*8].wind.speed} m/s</li>
                 </ul>
             </div>`
-        console.log(forecast.list[i*8].dt_txt)
+        console.log(timeConverter(forecast.list[i*8].dt))
     }
 }
 
